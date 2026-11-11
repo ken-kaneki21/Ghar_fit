@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Ghar Fit Log</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -112,7 +111,7 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:70
 .banner{background:var(--surface-2);border-left:4px solid var(--accent);border-radius:10px;padding:10px 12px;font-size:13px}
 
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);z-index:20}
-nav.tabs .in{display:grid;grid-template-columns:repeat(5,1fr);width:100%;max-width:560px}
+nav.tabs .in{display:grid;grid-template-columns:repeat(6,1fr);width:100%;max-width:560px}
 nav.tabs button{border:0;background:transparent;padding:9px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--muted)}
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button[aria-current="page"]{color:var(--teal)}
@@ -132,6 +131,25 @@ nav.tabs button[aria-current="page"]{color:var(--teal)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pill.hard{background:#183a24;color:#7fd99a}:root:not([data-theme="light"]) .pill.easy{background:#3a2414;color:#f2a66b}}
 .zbar{display:flex;height:7px;border-radius:99px;overflow:hidden;background:var(--surface-2);margin-top:5px}
 .zbar i{display:block;height:100%}
+.bmap{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:start}
+.bmap svg{width:100%;height:auto;max-height:340px}
+.bmap .cap{text-align:center;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+.bmap [data-m]{cursor:pointer;stroke:var(--bg);stroke-width:1.2;transition:opacity .15s}
+.bmap [data-m].sel{stroke:var(--accent);stroke-width:2.4}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.wk div{border-radius:10px;padding:6px 0;background:var(--surface-2);font-size:12px}
+.wk div b{display:block;font-family:var(--f-display);font-size:16px;line-height:1.3}
+.wk div.on{background:var(--teal-soft);color:var(--teal)}
+.wk div.td{outline:2px solid var(--accent);outline-offset:-2px}
+.vol{display:grid;grid-template-columns:7.5em 1fr 3.2em;gap:6px 8px;align-items:center;font-size:13px}
+.vol .b{height:9px;border-radius:99px;background:var(--surface-2);overflow:hidden;position:relative}
+.vol .b i{position:absolute;left:0;top:0;bottom:0;border-radius:99px}
+.vol .b s{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--muted);opacity:.5}
+.setrow{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.setrow span{font-size:12px;background:var(--surface-2);border-radius:6px;padding:2px 6px;font-variant-numeric:tabular-nums}
+.lift{display:grid;grid-template-columns:1fr 92px auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.lift:first-child{border-top:0}
+.up{color:var(--good);font-weight:700}.dn{color:var(--bad);font-weight:700}
 .tag{font-size:11px;font-weight:700;color:var(--teal);background:var(--teal-soft);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:1px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
@@ -154,6 +172,7 @@ nav.tabs button[aria-current="page"]{color:var(--teal)}
 <nav class="tabs" aria-label="Sections"><div class="in">
   <button data-tab="today" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Today</button>
   <button data-tab="food"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M8 8c0-2 2-2 2-4M13 8c0-2 2-2 2-4"/></svg>Food</button>
+  <button data-tab="train"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10v4M6 7v10M18 7v10M21 10v4M6 12h12"/></svg>Train</button>
   <button data-tab="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M7 15l4-4 3 3 5-6"/></svg>Progress</button>
   <button data-tab="ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/><path d="M9 10h6"/></svg>Ask Claude</button>
   <button data-tab="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7M9 8h4"/></svg>Plan</button>
@@ -198,7 +217,7 @@ const W={state:"idle",data:null,err:null,at:0,busy:false};
 const WATCH_SQL=`select json_build_object(
  'device',(select row_to_json(x) from (select app_version,battery,last_upload from public.devices where person='saurabh' order by last_upload desc nulls last limit 1) x),
  'days',(select coalesce(json_agg(d order by d.date),'[]'::json) from (select date,steps,kcal_active,kcal_total,floors,distance_m,exercise_min,active_hours,water_ml,sleep_min,hrv,hourly from public.daily_summary where person='saurabh' and date>=current_date-35) d),
- 'workouts',(select coalesce(json_agg(w order by w.start_ts desc),'[]'::json) from (select id,start_ts,end_ts,exercise_type,avg_hr,max_hr,kcal,distance_m,steps,zones from public.workouts where person='saurabh' and start_ts>=now()-interval '35 days') w),
+ 'workouts',(select coalesce(json_agg(w order by w.start_ts desc),'[]'::json) from (select id,start_ts,end_ts,exercise_type,program_id,avg_hr,max_hr,kcal,distance_m,steps,zones,sets,body_split from public.workouts where person='saurabh' and start_ts>=now()-interval '120 days') w),
  'sleep',(select coalesce(json_agg(z order by z.start_ts desc),'[]'::json) from (select start_ts,end_ts,total_min from public.sleep_sessions where person='saurabh' and start_ts>=now()-interval '14 days') z),
  'hr',(select coalesce(json_agg(h order by h.ts),'[]'::json) from (select ts,value v from public.samples where person='saurabh' and type='hr_1m' and ts>=now()-interval '26 hours') h),
  'body',(select coalesce(json_agg(b order by b.date),'[]'::json) from (select date,json from public.labels where person='saurabh' and kind='body_comp' and date>=current_date-120) b)
@@ -306,7 +325,7 @@ function render(){
   document.querySelectorAll("nav.tabs button").forEach(b=>{if(b.dataset.tab===S.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
   const keepFocus=document.activeElement&&document.activeElement.id; const caret=document.activeElement&&document.activeElement.selectionStart;
   const sy=window.scrollY;
-  view.innerHTML=({today:vToday,food:vFood,progress:vProgress,ask:vAsk,plan:vPlan})[S.tab](p);
+  view.innerHTML=({today:vToday,food:vFood,train:vTrain,progress:vProgress,ask:vAsk,plan:vPlan})[S.tab](p);
   if(keepFocus){const el=document.getElementById(keepFocus); if(el&&el.focus){el.focus(); try{if(caret!=null&&el.setSelectionRange)el.setSelectionRange(caret,caret);}catch(e){}}}
   window.scrollTo(0,sy);
   if(S.tab==="ask"){const c=document.getElementById("chatbox"); if(c) c.scrollTop=c.scrollHeight;}
@@ -342,7 +361,7 @@ function vToday(p){
     </div></div>
   <div class="card stack"><div class="row" style="justify-content:space-between"><h2>Workouts</h2></div>
     <div class="list">${ww.map(w=>{const mins=Math.round((new Date(w.end_ts)-new Date(w.start_ts))/60000);const z=w.zones||{};const zt=[1,2,3,4,5].reduce((a,i)=>a+(+z["z"+i]||0),0)||1;
-      return `<div class="item"><div class="grow"><div class="nm">${esc(prettyType(w.exercise_type))}<span class="tag">watch</span></div><div class="meta">${hm(w.start_ts)} · ${mins} min${w.avg_hr?` · avg ${w.avg_hr} / max ${w.max_hr} bpm`:""}${w.distance_m?` · ${(w.distance_m/1000).toFixed(2)} km`:""}</div><div class="zbar">${[1,2,3,4,5].map(i=>`<i style="width:${(+z["z"+i]||0)/zt*100}%;background:${ZC[i-1]}"></i>`).join("")}</div></div><div class="k">${w.kcal||0} kcal</div></div>`;}).join("")}${(dy.workouts||[]).map(w=>`<div class="item"><div class="grow"><div class="nm">${esc(w.type)}</div><div class="meta">${w.min||0} min</div></div><div class="k">${w.kcal||0} kcal</div><button class="iconbtn" data-act="delw" data-id="${w.id}" aria-label="Remove workout">✕</button></div>`).join("")}${!ww.length&&!(dy.workouts||[]).length?`<p class="muted small" style="margin:0">${S.pid===WATCH_PID?"Workouts recorded on Ghar Watch appear here by themselves. Add anything else below.":"Add today's gym, cycle ride or walk. Copy minutes and kcal from Samsung Health on the watch."}</p>`:""}</div>
+      return `<div class="item"><div class="grow"><div class="nm">${esc(woName(w))}<span class="tag">watch</span></div><div class="meta">${hm(w.start_ts)} · ${mins} min${(w.sets||[]).length?` · ${w.sets.length} sets`:""}${w.avg_hr?` · avg ${w.avg_hr} / max ${w.max_hr} bpm`:""}${w.distance_m?` · ${(w.distance_m/1000).toFixed(2)} km`:""}</div><div class="zbar">${[1,2,3,4,5].map(i=>`<i style="width:${(+z["z"+i]||0)/zt*100}%;background:${ZC[i-1]}"></i>`).join("")}</div></div><div class="k">${w.kcal||0} kcal</div></div>`;}).join("")}${(dy.workouts||[]).map(w=>`<div class="item"><div class="grow"><div class="nm">${esc(w.type)}</div><div class="meta">${w.min||0} min</div></div><div class="k">${w.kcal||0} kcal</div><button class="iconbtn" data-act="delw" data-id="${w.id}" aria-label="Remove workout">✕</button></div>`).join("")}${!ww.length&&!(dy.workouts||[]).length?`<p class="muted small" style="margin:0">${S.pid===WATCH_PID?"Workouts recorded on Ghar Watch appear here by themselves. Add anything else below.":"Add today's gym, cycle ride or walk. Copy minutes and kcal from Samsung Health on the watch."}</p>`:""}</div>
     <div class="grid2">
       <label class="f">Type<select id="w-type"><option>Gym – upper</option><option>Gym – lower</option><option>Gym – full body</option><option>Cycling / mandir</option><option>Walk</option><option>Treadmill</option><option>Just Dance</option><option>Yoga / stretching</option><option>Other</option></select></label>
       <label class="f">Minutes<input id="w-min" type="number" inputmode="numeric" placeholder="45"></label>
@@ -405,6 +424,145 @@ function hrLine(pts){
    <circle cx="${x(xs[mi])}" cy="${y(vs[mi])}" r="4" fill="#e5484d"/><text x="${Math.min(w-R-40,x(xs[mi]))}" y="${y(vs[mi])-6}" font-size="11" fill="#e5484d">max ${Math.round(vs[mi])}</text>
    <text x="${L}" y="${h-4}" font-size="11" fill="var(--muted)">${hm(t0)}</text><text x="${w-R}" y="${h-4}" font-size="11" text-anchor="end" fill="var(--muted)">now</text>
   </svg>`;
+}
+
+// ---------- Train tab (watch programs, sets, body map, progress) ----------
+const PROGS={"gym-a":["Gym A","Upper + treadmill","A"],"gym-b":["Gym B","Lower + core + treadmill","B"],"gym-c":["Gym C","Full body light + treadmill","C"],
+ "home-full":["Home","Full body, dumbbells","H"],"treadmill-z2":["Treadmill","Zone 2","T"],"jd-20":["Just Dance","20 min","J"],"jd-30":["Just Dance","30 min","J"]};
+const MUSCLES=[["chest","Chest"],["front_delts","Front delts"],["side_delts","Side delts"],["rear_delts","Rear delts"],["biceps","Biceps"],["triceps","Triceps"],["forearms","Forearms"],
+ ["lats","Lats"],["upper_back","Upper back"],["traps","Traps"],["lower_back","Lower back"],["abs","Abs"],["obliques","Obliques"],["glutes","Glutes"],["quads","Quads"],
+ ["hamstrings","Hamstrings"],["adductors","Adductors"],["calves","Calves"],["hip_flexors","Hip flexors"]];
+const MLBL=Object.fromEntries(MUSCLES);
+const MAJOR=["chest","lats","upper_back","front_delts","side_delts","biceps","triceps","abs","glutes","quads","hamstrings","calves"];
+function woName(w){const p=PROGS[w.program_id]; return p?p[0]+" · "+p[1]:prettyType(w.exercise_type);}
+function weekStart(d){const t=new Date(d+"T12:00:00"); const k=(t.getDay()+6)%7; t.setDate(t.getDate()-k); return t.toLocaleDateString("en-CA");}
+function localDay(ts){return new Date(ts).toLocaleDateString("en-CA");}
+function allWo(){return W.data?(W.data.workouts||[]).slice().sort((a,b)=>new Date(a.start_ts)-new Date(b.start_ts)):[];}
+function splitOf(w){const m=w.body_split&&w.body_split.muscles; return m&&typeof m==="object"?m:{};}
+function heat(v){if(!v) return "var(--surface-2)"; const a=Math.min(1,v/12); return `color-mix(in srgb, var(--teal) ${Math.round(25+75*a)}%, var(--surface-2))`;}
+function bodySvg(side,vol){
+  const f=m=>`data-m="${m}" fill="${heat(vol[m]||0)}"${S.musc===m?' class="sel"':""}`;
+  const E=(m,cx,cy,rx,ry)=>`<ellipse ${f(m)} cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"><title>${MLBL[m]}: ${(vol[m]||0).toFixed(1)} sets</title></ellipse>`;
+  const P=(m,pts)=>`<polygon ${f(m)} points="${pts}"><title>${MLBL[m]}: ${(vol[m]||0).toFixed(1)} sets</title></polygon>`;
+  const R=(m,x,y,w,h,r)=>`<rect ${f(m)} x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"><title>${MLBL[m]}: ${(vol[m]||0).toFixed(1)} sets</title></rect>`;
+  const base=`<g fill="var(--line)" opacity=".55"><circle cx="60" cy="17" r="11"/><rect x="54" y="27" width="12" height="10" rx="3"/>
+   <rect x="37" y="38" width="46" height="84" rx="14"/><rect x="18" y="44" width="16" height="80" rx="8"/><rect x="86" y="44" width="16" height="80" rx="8"/>
+   <rect x="39" y="116" width="19" height="118" rx="9"/><rect x="62" y="116" width="19" height="118" rx="9"/></g>`;
+  const both=(fn)=>fn(1)+fn(-1);
+  const mx=(x,s)=>s>0?x:120-x;
+  let g="";
+  if(side==="front"){
+    g+=both(s=>E("side_delts",mx(29,s),56,5,9));
+    g+=both(s=>E("front_delts",mx(36,s),49,8,7));
+    g+=both(s=>R("chest",s>0?40:61,43,19,22,7));
+    g+=both(s=>E("biceps",mx(27,s),78,5.5,13));
+    g+=both(s=>E("forearms",mx(25,s),106,5,14));
+    g+=R("abs",50,68,20,44,6);
+    g+=both(s=>E("obliques",mx(43.5,s),90,4.5,17));
+    g+=both(s=>E("hip_flexors",mx(50,s),121,6,6));
+    g+=both(s=>E("quads",mx(47.5,s),153,9,27));
+    g+=both(s=>E("adductors",mx(57.5,s),143,2.8,16));
+    g+=both(s=>E("calves",mx(48,s),205,5.5,17));
+  } else {
+    g+=P("traps","46,39 74,39 67,60 53,60");
+    g+=both(s=>E("side_delts",mx(29,s),56,5,9));
+    g+=both(s=>E("rear_delts",mx(36,s),50,8,7));
+    g+=R("upper_back",47,58,26,20,6);
+    g+=both(s=>P("lats",s>0?"39,62 49,66 51,100 43,95":"81,62 71,66 69,100 77,95"));
+    g+=both(s=>E("triceps",mx(27,s),79,5.5,13));
+    g+=both(s=>E("forearms",mx(25,s),106,5,14));
+    g+=R("lower_back",51,90,18,24,6);
+    g+=both(s=>E("glutes",mx(50.5,s),127,9.5,10));
+    g+=both(s=>E("hamstrings",mx(48,s),162,8.5,24));
+    g+=both(s=>E("calves",mx(48.5,s),203,7,16));
+  }
+  return `<svg viewBox="0 0 120 240" role="img" aria-label="${side} muscles">${base}${g}</svg>`;
+}
+function e1rm(kg,reps){return kg>0&&reps>0?kg*(1+Math.min(reps,15)/30):0;}
+function liftHistory(){
+  const H={};
+  allWo().forEach(w=>{(w.sets||[]).forEach(st=>{const e=String(st.ex||"?");
+    const h=H[e]||(H[e]={ex:e,sess:[]}); let ss=h.sess.find(x=>x.id===w.id);
+    if(!ss){ss={id:w.id,date:localDay(w.start_ts),top:0,best:0,reps:0,hold:0,n:0}; h.sess.push(ss);}
+    const kg=+st.kg||0, r=+st.reps||0; ss.n++; ss.top=Math.max(ss.top,kg); ss.best=Math.max(ss.best,e1rm(kg,r)); ss.reps=Math.max(ss.reps,r); ss.hold=Math.max(ss.hold,+st.hold_s||0);});});
+  return Object.values(H).sort((a,b)=>b.sess[b.sess.length-1].date.localeCompare(a.sess[a.sess.length-1].date)||a.ex.localeCompare(b.ex));
+}
+function spark(vals,color){
+  if(vals.length<2) return `<svg viewBox="0 0 92 28" width="92" height="28"><circle cx="46" cy="14" r="3" fill="${color}"/></svg>`;
+  const lo=Math.min(...vals),hi=Math.max(...vals),r=hi-lo||1,x=i=>3+i*(86/(vals.length-1)),y=v=>24-(v-lo)/r*20;
+  return `<svg viewBox="0 0 92 28" width="92" height="28" aria-hidden="true"><path d="${vals.map((v,i)=>(i?"L":"M")+x(i).toFixed(1)+","+y(v).toFixed(1)).join("")}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/><circle cx="${x(vals.length-1)}" cy="${y(vals[vals.length-1])}" r="3" fill="${color}"/></svg>`;
+}
+function nextGym(){const g=allWo().filter(w=>/^gym-/.test(w.program_id||"")).pop(); const n={"gym-a":"gym-b","gym-b":"gym-c","gym-c":"gym-a"}[g&&g.program_id]||"gym-a"; return PROGS[n];}
+function vTrain(p){
+  if(S.pid!==WATCH_PID) return `<div class="stack"><div class="card stack"><h2>Training</h2><p class="small muted" style="margin:0">Watch-recorded training (sets, body map, lift progress) shows for Saurabh's Ghar Watch. Log ${esc(p.name)}'s workouts on the Today tab.</p></div></div>`;
+  if(!W.data) return `<div class="stack">${watchCard(p,day(),sumFoods(day()))}</div>`;
+  const ws=S.wk||weekStart(today()), we=shift(ws,7), thisWk=ws===weekStart(today());
+  const wos=allWo().filter(w=>{const d=localDay(w.start_ts); return d>=ws&&d<we;});
+  const vol={}; wos.forEach(w=>{Object.entries(splitOf(w)).forEach(([m,v])=>{vol[m]=(vol[m]||0)+(+v||0);});});
+  const strengthSets=wos.reduce((a,w)=>a+(w.sets||[]).length,0);
+  const mins=wos.reduce((a,w)=>a+Math.max(0,(new Date(w.end_ts)-new Date(w.start_ts))/60000),0);
+  const z2=Math.round(wos.reduce((a,w)=>a+(+(w.zones||{}).z2||0)+(+(w.zones||{}).z3||0),0)/60);
+  const kcal=wos.reduce((a,w)=>a+(+w.kcal||0),0);
+  const days=[...Array(7)].map((_,i)=>shift(ws,i));
+  const ng=nextGym();
+  const sel=S.musc||null;
+  const lbl=new Date(ws+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"})+" – "+new Date(shift(ws,6)+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+  const volRows=MUSCLES.filter(([k])=>MAJOR.includes(k)||vol[k]).map(([k,n])=>{const v=vol[k]||0; const c=v<4?"var(--warn)":v<=16?"var(--good)":"var(--bad)";
+    return `<span${sel===k?' style="font-weight:700"':""}>${n}</span><div class="b"><i style="width:${Math.min(100,v/20*100)}%;background:${v?c:"transparent"}"></i><s style="left:40%"></s><s style="left:80%"></s></div><span class="num" style="text-align:right">${v?v.toFixed(v<10?1:0):"–"}</span>`;}).join("");
+  const low=MAJOR.filter(k=>(vol[k]||0)<4).map(k=>MLBL[k]);
+  const lifts=liftHistory();
+  const sessions=wos.slice().reverse();
+  return `<div class="daynav"><button data-act="wkprev" aria-label="Previous week">‹</button><div class="d">${thisWk?"This week · ":""}${esc(lbl)}</div><button data-act="wknext" aria-label="Next week" ${thisWk?"disabled":""}>›</button></div>
+  <div class="stack">
+  <div class="card wcard stack">
+    <div class="row" style="justify-content:space-between"><h2>${thisWk?"Next gym day":"Week summary"}</h2><button class="btn sm alt" data-act="wrefresh" ${W.busy?"disabled":""}>${W.busy?"…":"Refresh"}</button></div>
+    ${thisWk?`<div><span class="pill normal">${esc(ng[0])}</span> <span class="small muted">${esc(ng[1])} · start it on the watch: Workout → Today</span></div>`:""}
+    <div class="wk">${days.map(d=>{const dw=allWo().filter(w=>localDay(w.start_ts)===d); const t=dw.map(w=>(PROGS[w.program_id]||[,,prettyType(w.exercise_type)[0]])[2]).join("");
+      return `<div class="${dw.length?"on":""} ${d===today()?"td":""}">${new Date(d+"T12:00:00").toLocaleDateString("en-IN",{weekday:"narrow"})}<b>${esc(t||"·")}</b></div>`;}).join("")}</div>
+    <div class="wgrid">
+      <div class="wm"><span class="lbl">Sessions</span><span class="val">${wos.length}<small> / 7</small></span></div>
+      <div class="wm"><span class="lbl">Sets</span><span class="val">${strengthSets}</span></div>
+      <div class="wm"><span class="lbl">Time</span><span class="val">${Math.round(mins)}<small> min</small></span></div>
+      <div class="wm"><span class="lbl">Zone 2–3</span><span class="val">${z2}<small> / 150 min</small></span></div>
+      <div class="wm"><span class="lbl">Burned</span><span class="val">${Math.round(kcal).toLocaleString("en-IN")}<small> kcal</small></span></div>
+      <div class="wm"><span class="lbl">Muscles</span><span class="val">${Object.keys(vol).filter(k=>vol[k]>=1).length}<small> / 19</small></span></div>
+    </div>
+  </div>
+
+  <div class="card stack">
+    <div class="row" style="justify-content:space-between"><h2>Body map</h2><span class="small muted">sets this week</span></div>
+    <div class="bmap"><div><div class="cap">FRONT</div>${bodySvg("front",vol)}</div><div><div class="cap">BACK</div>${bodySvg("back",vol)}</div></div>
+    <div class="row small muted" style="gap:6px;justify-content:center"><span>0</span><span style="display:inline-block;width:120px;height:8px;border-radius:9px;background:linear-gradient(90deg,var(--surface-2),var(--teal))"></span><span>12+ sets</span></div>
+    ${sel?`<p class="small" style="margin:0"><b>${esc(MLBL[sel])}</b>: ${(vol[sel]||0).toFixed(1)} sets this week. Tap another muscle, or the same one to clear.</p>`:`<p class="small muted" style="margin:0">Tap a muscle for its weekly sets. Cardio and dance add partial credit to the legs and core.</p>`}
+  </div>
+
+  <div class="card stack">
+    <div class="row" style="justify-content:space-between"><h2>Weekly volume</h2><span class="small muted">target 4–16 sets</span></div>
+    <div class="vol">${volRows}</div>
+    ${wos.length?(low.length?`<p class="small" style="margin:0">Under 4 sets so far: <b>${esc(low.join(", "))}</b>.${thisWk?" The rotation should cover these by Sunday; if not, pick Gym C or Home.":""}</p>`:`<p class="small" style="margin:0;color:var(--good)"><b>Every major muscle got 4+ sets.</b></p>`):`<p class="small muted" style="margin:0">No watch workouts this week yet.</p>`}
+  </div>
+
+  <div class="card stack">
+    <div class="row" style="justify-content:space-between"><h2>Lift progress</h2><span class="small muted">top kg per session</span></div>
+    ${lifts.length?`<div>${lifts.map(h=>{const ss=h.sess, l=ss[ss.length-1], f=ss[0], weighted=ss.some(x=>x.top>0);
+      const vals=ss.slice(-8).map(x=>weighted?x.top:(x.hold||x.reps)); const d=weighted?(l.top-f.top):((l.hold||l.reps)-(f.hold||f.reps));
+      const unit=weighted?"kg":(l.hold?"s":"reps"), cur=weighted?l.top:(l.hold||l.reps);
+      return `<div class="lift"><div><div style="font-weight:700">${esc(h.ex)}</div><div class="small muted">${ss.length} session${ss.length>1?"s":""} · last ${esc(fmtShort(l.date))}${weighted&&l.best?` · est. 1RM ${Math.round(l.best)} kg`:""}</div></div>${spark(vals,"var(--teal)")}<div class="num" style="text-align:right"><b>${cur}</b> <span class="small muted">${unit}</span>${ss.length>1&&d?`<div class="small ${d>0?"up":"dn"}">${d>0?"+":""}${Math.round(d*10)/10}</div>`:""}</div></div>`;}).join("")}</div>`
+     :`<p class="small muted" style="margin:0">Log sets with a watch program (Gym A/B/C or Home) and each exercise's weights show up here.</p>`}
+    <p class="small muted" style="margin:0">The watch suggests +2.5 kg when every set reaches the top of the rep range.</p>
+  </div>
+
+  <div class="card stack"><h2>Sessions</h2>
+    ${sessions.length?`<div class="list">${sessions.map(w=>{const m=Math.round((new Date(w.end_ts)-new Date(w.start_ts))/60000); const z=w.zones||{}; const zt=[1,2,3,4,5].reduce((a,i)=>a+(+z["z"+i]||0),0)||1;
+      const by={}; (w.sets||[]).forEach(st=>{(by[st.ex]=by[st.ex]||[]).push(st);});
+      const open=S.openWo===w.id;
+      return `<div class="item" style="align-items:flex-start"><div class="grow"><button class="linkbtn" data-act="wo" data-id="${esc(w.id)}" style="all:unset;cursor:pointer;display:block"><div class="nm">${esc(woName(w))}</div>
+        <div class="meta">${esc(fmtDay(localDay(w.start_ts)))} · ${hm(w.start_ts)} · ${m} min${w.avg_hr?` · avg ${w.avg_hr} bpm`:""}${(w.sets||[]).length?` · ${w.sets.length} sets ${open?"▴":"▾"}`:""}</div></button>
+        <div class="zbar">${[1,2,3,4,5].map(i=>`<i style="width:${(+z["z"+i]||0)/zt*100}%;background:${ZC[i-1]}"></i>`).join("")}</div>
+        ${open?Object.entries(by).map(([ex,arr])=>`<div style="margin-top:8px"><div class="small" style="font-weight:700">${esc(ex)}</div><div class="setrow">${arr.map(st=>`<span>${+st.hold_s?`${st.hold_s} s`:`${+st.kg?`${st.kg} kg × `:""}${st.reps}`}</span>`).join("")}</div></div>`).join(""):""}
+      </div><div class="k">${w.kcal||0} kcal</div></div>`;}).join("")}</div>`:`<p class="small muted" style="margin:0">No sessions in this week.</p>`}
+  </div>
+  </div>`;
 }
 function foodList(dy,compact){
   const foods=dy.foods||[]; if(!foods.length) return `<p class="muted small" style="margin:0">Nothing logged yet. Tap Log food to add a meal.</p>`;
@@ -616,8 +774,12 @@ async function uploadPhoto(file){
 document.addEventListener("click",e=>{
   const who=e.target.closest(".who button"); if(who){S.pid=who.dataset.pid;S.est=null;try{localStorage.setItem("fitlog.pid",S.pid)}catch(_){}render();return;}
   const tab=e.target.closest("nav.tabs button"); if(tab){S.tab=tab.dataset.tab;render();window.scrollTo(0,0);if(S.pid===WATCH_PID)loadWatch(false);return;}
+  const mus=e.target.closest(".bmap [data-m]"); if(mus){S.musc=S.musc===mus.dataset.m?null:mus.dataset.m;render();return;}
   const b=e.target.closest("[data-act]"); if(!b) return; const a=b.dataset.act;
   if(a==="wrefresh"){loadWatch(true);return;}
+  if(a==="wkprev"){S.wk=shift(S.wk||weekStart(today()),-7);S.musc=null;render();return;}
+  if(a==="wknext"){const n=shift(S.wk||weekStart(today()),7); if(n<=weekStart(today())){S.wk=n;S.musc=null;render();} return;}
+  if(a==="wo"){S.openWo=S.openWo===b.dataset.id?null:b.dataset.id;render();return;}
   if(a==="tpledit"){S.tplEdit=!S.tplEdit;render();return;}
   if(a==="tplsave"){const m=b.dataset.m;const items=(day().foods||[]).filter(f=>(f.meal||"snack")===m).map(f=>({name:f.name,qtyLabel:f.qtyLabel||"",kcal:+f.kcal||0,protein:+f.protein||0}));
     if(!items.length) return; const nm=items.slice(0,3).map(x=>x.name.split(" (")[0].split(",")[0]).join(" + ")+(items.length>3?" +"+(items.length-3):"");
@@ -674,5 +836,3 @@ document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==
 setTimeout(()=>{ if(!db&&!window.claude){document.getElementById("offline").hidden=false;} },10500);
 })();
 </script>
-
-</body></html>
