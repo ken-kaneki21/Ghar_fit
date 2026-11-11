@@ -16,3 +16,5 @@
    -keep class androidx.wear.tiles.proto.** { *; }
    -keep class dev.ghar.watch.tile.** { *; }
    -keep class dev.ghar.watch.workout.** { *; }
+   -keep class dev.ghar.watch.complication.** { *; }
+   -keep class androidx.wear.watchface.complications.** { *; }

@@ -49,15 +49,20 @@ object Workout {
         val hr: Int = 0, val avgHr: Int = 0, val maxHr: Int = 0,
         val kcal: Double = 0.0, val steps: Long = 0, val distM: Double = 0.0,
         val zones: List<Long> = List(5) { 0L },            // seconds in zone 1..5
-        val summary: Boolean = false, val msg: String = "",
+        val summary: Boolean = false, val msg: String = "", val programId: String = "",
     ) {
         fun elapsedMs(now: Long = System.currentTimeMillis()) = activeMs + if (active && !paused && checkpointAt > 0) now - checkpointAt else 0
     }
 
     val state = MutableStateFlow(Live())
 
+    /** Set by the program runner before start/end: program id, and sets + body split to save with the workout. */
+    @Volatile var pendingProgramId: String = ""
+    @Volatile var extra: JSONObject? = null
+
     /** Preferred order; only types this watch supports are shown. */
     val PREFERRED = listOf("WALKING", "RUNNING", "STRENGTH_TRAINING", "HIGH_INTENSITY_INTERVAL_TRAINING",
+        "BADMINTON", "SWIMMING_POOL", "BOXING",
         "SOCCER", "JUMP_ROPE", "DANCING", "YOGA", "BIKING", "STAIR_CLIMBING", "WORKOUT")
 
     fun pretty(t: String) = when (t) {
@@ -67,6 +72,7 @@ object Workout {
         "JUMP_ROPE" -> "Skipping"
         "STAIR_CLIMBING" -> "Stairs"
         "WORKOUT" -> "Other workout"
+        "SWIMMING_POOL" -> "Swimming"
         else -> t.lowercase().replaceFirstChar { it.uppercase() }.replace('_', ' ')
     }
 
@@ -163,7 +169,9 @@ class WorkoutService : Service() {
                 .build()
             finished = false; hrSum = 0.0; hrN = 0; lastHrMs = 0L
             val now = System.currentTimeMillis()
-            Workout.state.value = Workout.Live(active = true, type = type.name, startMs = now, checkpointAt = now, msg = "Starting…")
+            Workout.state.value = Workout.Live(active = true, type = type.name, startMs = now, checkpointAt = now, msg = "Starting…",
+                programId = Workout.pendingProgramId)
+            Workout.pendingProgramId = ""
             save(force = true)
             client.setUpdateCallback(callback)
             client.startExerciseAsync(cfg).await()
@@ -224,7 +232,7 @@ class WorkoutService : Service() {
         if (!force && now - lastSave < 15_000) return
         lastSave = now
         val s = Workout.state.value
-        Store.kvSet("wo_live", JSONObject().put("type", s.type).put("start", s.startMs).put("active_ms", s.elapsedMs(now))
+        Store.kvSet("wo_live", JSONObject().put("type", s.type).put("program", s.programId).put("start", s.startMs).put("active_ms", s.elapsedMs(now))
             .put("avg", s.avgHr).put("max", s.maxHr).put("kcal", s.kcal).put("steps", s.steps).put("dist", s.distM)
             .put("zones", JSONArray(s.zones)).toString())
     }
@@ -235,7 +243,7 @@ class WorkoutService : Service() {
         val z = j.optJSONArray("zones")
         val now = System.currentTimeMillis()
         Workout.state.value = Workout.Live(
-            active = true, type = j.optString("type", "WORKOUT"), startMs = j.optLong("start", now),
+            active = true, type = j.optString("type", "WORKOUT"), startMs = j.optLong("start", now), programId = j.optString("program", ""),
             activeMs = j.optLong("active_ms"), checkpointAt = now,
             avgHr = j.optInt("avg"), maxHr = j.optInt("max"), kcal = j.optDouble("kcal", 0.0),
             steps = j.optLong("steps"), distM = j.optDouble("dist", 0.0),
@@ -250,12 +258,15 @@ class WorkoutService : Service() {
         val s = Workout.state.value
         val end = System.currentTimeMillis()
         if (s.startMs > 0 && s.elapsedMs(end) >= 60_000) {
+            val ex = Workout.extra
             Rec.workout(s.startMs, end, s.type, s.avgHr, s.maxHr, s.kcal, s.distM, s.steps,
                 JSONObject().apply { s.zones.forEachIndexed { i, v -> put("z${i + 1}", v) } }
-                    .put("active_s", s.elapsedMs(end) / 1000))
+                    .put("active_s", s.elapsedMs(end) / 1000),
+                programId = s.programId.ifEmpty { null }, sets = ex?.optJSONArray("sets"), bodySplit = ex?.optJSONObject("body_split"))
             runCatching { Day.markExerciseRange(s.startMs, end) }
         }
         Store.kvDel("wo_live")
+        Workout.extra = null
         Workout.state.value = s.copy(active = false, paused = false, summary = true, activeMs = s.elapsedMs(end), checkpointAt = 0)
         runCatching { RingsTile.refresh(this) }
         client.clearUpdateCallbackAsync(callback)

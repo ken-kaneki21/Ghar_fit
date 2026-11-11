@@ -81,6 +81,9 @@ object Prefs {
     var goalWater: Int
         get() = sp.getInt("goal_water", 3500)
         set(v) { sp.edit().putInt("goal_water", v).commit() }
+    var moveRemind: Boolean
+        get() = sp.getBoolean("move_remind", true)
+        set(v) { sp.edit().putBoolean("move_remind", v).commit() }
     var waterRemind: Boolean
         get() = sp.getBoolean("water_remind", true)
         set(v) { sp.edit().putBoolean("water_remind", v).commit() }

@@ -106,3 +106,19 @@ Font: Inter, SIL Open Font License 1.1 (see INTER_FONT_LICENSE.txt).
   Home shows "Morning HRV" 05–11 until done; HRV tile with 7-day baseline; result vs baseline (±15 % bands).
   Saved as daily_summary.hrv + sample `hrv_rmssd` (meta: hr, beats). Energy score uses this from ~day 14.
 - Setup: V1_4_GRADLE.txt (add the .aar). No SQL needed.
+
+## v1.5 (Nov 11)
+- Move reminder at :50 if the hour has < 250 steps (09–22; not asleep/charging/in a workout) with a "Desk stretch" action.
+- Timers & stretches: interval timer (Skipping 30/30×10, HIIT 40/20×8, Tabata 20/10×8, Push-up EMOM, custom; optional
+  workout recording), 2-min desk stretch, 10-min daily mobility (incl. McGill Big 3). Buzz on switches, 3-2-1, screen on.
+- Watch-face complications: Ghar Move, Ghar Steps, Ghar Heart (ranged + short text).
+- Gradle/ProGuard: V1_5_GRADLE_AND_PROGUARD.txt.
+
+## v1.6 (Nov 11) — Programs (Sprint 2)
+- Workout → PROGRAMS: "Today: Gym A/B/C" (rotates A → B → C after each saved gym session), Home full body, Treadmill Zone 2, Just Dance 20/30.
+- Flow: warm-up → sets (kg/reps steppers, Set done, rest countdown with 3-2-1 buzz, +15 s, skip) → treadmill/dance with live HR and a triple buzz if outside Zone 2 for over 60 s → stretches → Save.
+- Progression: if every set reached the top of the rep range last time, the watch suggests +2.5 kg and pre-fills it.
+- Saved with the workout: program_id, every set (ex, set, reps, kg, hold_s) and body_split (muscle → set-equivalents) for the body map.
+- Sports (Badminton, Swimming, Boxing…) appear under FREE WORKOUT / SPORT when the watch supports them.
+- No new Gradle dependencies; ProGuard rules from v1.5 already keep dev.ghar.watch.workout.
+- New files: workout/Programs.kt, presentation/ProgramUi.kt. Changed: Timers.kt, MainActivity.kt, WorkoutService.kt, Rec.kt.

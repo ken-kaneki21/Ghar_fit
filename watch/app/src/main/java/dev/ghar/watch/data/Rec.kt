@@ -9,7 +9,7 @@ import kotlin.math.roundToLong
 
 /** Builds server rows and puts them in the outbox. `person` is (re)filled at upload time. */
 object Rec {
-    const val APP_VERSION = "1.4.2"
+    const val APP_VERSION = "1.6.0"
     val zone: ZoneId get() = ZoneId.systemDefault()
 
     fun iso(ms: Long): String = Instant.ofEpochMilli(ms).toString()
@@ -112,7 +112,8 @@ object Rec {
         Store.kvSet("checkin_done", date.toString())
     }
 
-    fun workout(startMs: Long, endMs: Long, type: String, avgHr: Int, maxHr: Int, kcal: Double, distM: Double, steps: Long, zones: JSONObject) {
+    fun workout(startMs: Long, endMs: Long, type: String, avgHr: Int, maxHr: Int, kcal: Double, distM: Double, steps: Long, zones: JSONObject,
+                programId: String? = null, sets: org.json.JSONArray? = null, bodySplit: JSONObject? = null) {
         val id = "${Prefs.deviceId}:workout:$startMs"
         val o = JSONObject()
             .put("id", id).put("person", Prefs.person).put("device_id", Prefs.deviceId)
@@ -121,6 +122,9 @@ object Rec {
             .put("zones", zones)
         if (avgHr > 0) o.put("avg_hr", avgHr)
         if (maxHr > 0) o.put("max_hr", maxHr)
+        if (programId != null) o.put("program_id", programId)
+        if (sets != null) o.put("sets", sets)
+        if (bodySplit != null) o.put("body_split", bodySplit)
         Store.enqueue("workouts", id, o)
     }
 

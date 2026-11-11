@@ -51,6 +51,7 @@ class RingsTile : TileService() {
             if (!force && now - last < 5 * 60_000L) return
             Store.kvSet("tile_req", now.toString())
             runCatching { getUpdater(ctx).requestUpdate(RingsTile::class.java) }
+            runCatching { dev.ghar.watch.complication.Comp.refresh(ctx) }
         }
 
         private fun dim(c: Int): Int {           // 22 % of the colour on black = ring track

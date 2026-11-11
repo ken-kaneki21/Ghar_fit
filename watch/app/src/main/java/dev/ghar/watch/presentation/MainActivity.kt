@@ -30,6 +30,8 @@ import androidx.compose.runtime.collectAsState
 import dev.ghar.watch.presentation.ui.ZoneBar
 import dev.ghar.watch.presentation.ui.ZoneColors
 import dev.ghar.watch.workout.Workout
+import dev.ghar.watch.workout.Programs
+import dev.ghar.watch.workout.Session
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -152,7 +154,7 @@ private fun rememberSnap(refreshKey: Int): Snap {
 @Composable
 private fun App(startRoute: String? = null) {
     val nav = rememberSwipeDismissableNavController()
-    LaunchedEffect(Unit) { if (startRoute == "workout") nav.navigate("workout") }
+    LaunchedEffect(Unit) { if (startRoute in setOf("workout", "stretch", "interval", "mobility", "timers")) nav.navigate(startRoute!!) }
     var refresh by remember { mutableIntStateOf(0) }
     val bump: () -> Unit = { refresh++ }
     SwipeDismissableNavHost(navController = nav, startDestination = "home") {
@@ -167,6 +169,10 @@ private fun App(startRoute: String? = null) {
         composable("status") { StatusScreen(refresh, bump) }
         composable("settings") { SettingsScreen(bump) }
         composable("hrv") { HrvScreen(bump) }
+        composable("timers") { TimersScreen { nav.navigate(it) } }
+        composable("interval") { IntervalScreen { bump(); nav.popBackStack() } }
+        composable("stretch") { RoutineRunner("Desk stretch", Routines.DESK, G.Sleep, null) { nav.popBackStack() } }
+        composable("mobility") { RoutineRunner("Daily mobility", Routines.MOBILITY, G.Sleep, null) { nav.popBackStack() } }
         composable("workout") { WorkoutScreen { bump(); nav.popBackStack() } }
     }
 }
@@ -201,6 +207,7 @@ private fun HomeScreen(refresh: Int, go: (String) -> Unit, bump: () -> Unit) {
             if (w.active) Pill("Workout · ${dur(w.elapsedMs())}", filled = true, color = G.Exercise) { go("workout") }
             else Pill("Start workout", filled = true, color = G.Exercise) { go("workout") }
         }
+        item { Pill("Timers & stretches", sub = "Intervals · desk stretch · mobility") { go("timers") } }
 
         if (!s.permsOk) item {
             Pill("Allow sensors", filled = true, sub = "Needed for tracking") { fg.launch(arrayOf(Passive.ACT_PERM, Passive.HR_PERM)) }
@@ -361,15 +368,23 @@ private fun WorkoutScreen(onClose: () -> Unit) {
     val ctx = LocalContext.current
     val w by Workout.state.collectAsState()
     when {
+        w.active && Session.program != null -> ProgramRunner()
         w.active -> WorkoutLive(w)
-        w.summary -> WorkoutSummary(w) { Workout.dismissSummary(); onClose() }
+        w.summary -> { LaunchedEffect(Unit) { Session.clear() }; WorkoutSummary(w) { Workout.dismissSummary(); onClose() } }
         else -> {
             val types by produceState(initialValue = emptyList<String>()) { value = Workout.supportedTypes(ctx) }
+            val gym = Programs.nextGym()
             GScreen {
                 item { Text("Workout", style = GType.Title, color = G.Text) }
                 if (w.msg.isNotEmpty()) item { Caption(w.msg, G.Warn) }
+                item { Caption("PROGRAMS", G.Muted) }
+                item { Pill("Today: ${gym.name}", filled = true, color = G.Exercise, sub = programLabel(gym)) { startProgram(ctx, gym) } }
+                Programs.ALL.filter { it.id != gym.id }.forEach { p ->
+                    item { Pill(p.name, color = if (p.kind == "strength") G.Exercise else G.Hours, sub = programLabel(p)) { startProgram(ctx, p) } }
+                }
+                item { Caption("FREE WORKOUT / SPORT", G.Muted) }
                 if (types.isEmpty()) item { Caption("Loading…") }
-                types.forEach { t -> item { Pill(Workout.pretty(t), color = G.Exercise) { Workout.start(ctx, t) } } }
+                types.forEach { t -> item { Pill(Workout.pretty(t), color = G.Exercise) { Session.clear(); Workout.pendingProgramId = ""; Workout.start(ctx, t) } } }
             }
         }
     }
@@ -502,6 +517,7 @@ private fun SettingsScreen(bump: () -> Unit) {
     var sync by remember { mutableStateOf(Prefs.syncMode) }
     var saver by remember { mutableStateOf(Prefs.autoSaver) }
     var remind by remember { mutableStateOf(Prefs.waterRemind) }
+    var moveR by remember { mutableStateOf(Prefs.moveRemind) }
     var move by remember { mutableIntStateOf(Prefs.goalMove) }
     var ex by remember { mutableIntStateOf(Prefs.goalExercise) }
     var hrs by remember { mutableIntStateOf(Prefs.goalHours) }
@@ -539,6 +555,8 @@ private fun SettingsScreen(bump: () -> Unit) {
         }
         item { Pill("Auto saver: ${if (saver) "On" else "Off"}", sub = "Essential below 20%") { saver = !saver; Prefs.autoSaver = saver } }
         item { Pill("Water reminders: ${if (remind) "On" else "Off"}") { remind = !remind; Prefs.waterRemind = remind } }
+        item { Pill("Move reminders: ${if (moveR) "On" else "Off"}", sub = ":50 if < 250 steps that hour") {
+            moveR = !moveR; Prefs.moveRemind = moveR; dev.ghar.watch.system.MoveReminder.schedule(ctx) } }
         item { Pill("Restart tracking") { Scheduler.registerNow(ctx) } }
         item { Caption("Heart-rate interval: Samsung Health → Heart rate settings") }
         item { Caption("Android ${Build.VERSION.RELEASE} · ${Rec.APP_VERSION}", G.Dim) }

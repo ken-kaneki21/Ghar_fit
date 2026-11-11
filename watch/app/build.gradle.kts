@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.wear:wear-ongoing:1.0.0")                 // workout icon on the watch face
     implementation("androidx.wear.tiles:tiles:1.4.1")                  // rings tile
     implementation("androidx.wear.protolayout:protolayout:1.2.1")
+    implementation("androidx.wear.watchface:watchface-complications-data-source-ktx:1.2.1")
     implementation(files("libs/samsung-health-sensor-api-1.4.1.aar"))
 
 }

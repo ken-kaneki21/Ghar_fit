@@ -82,6 +82,7 @@ class HeartbeatWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(
         }
         Sleep.checkpoint()
         runCatching { dev.ghar.watch.system.WaterNotify.maybeRemind(ctx) }
+        runCatching { dev.ghar.watch.system.MoveReminder.schedule(ctx) }   // self-heal if the alarm was lost
         return Result.success()
     }
 
@@ -132,6 +133,7 @@ object Scheduler {
 
         val hb = PeriodicWorkRequestBuilder<HeartbeatWorker>(30, TimeUnit.MINUTES).build()
         wm.enqueueUniquePeriodicWork("heartbeat", ExistingPeriodicWorkPolicy.KEEP, hb)
+        runCatching { dev.ghar.watch.system.MoveReminder.schedule(ctx) }
     }
 
     fun syncNow(ctx: Context) {
