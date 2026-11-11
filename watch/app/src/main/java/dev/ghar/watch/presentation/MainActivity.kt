@@ -24,6 +24,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalView
 import dev.ghar.watch.health.Hrv
+import dev.ghar.watch.health.Recovery
+import dev.ghar.watch.presentation.ui.DayBars
+import dev.ghar.watch.presentation.ui.MiniLine
+import kotlin.math.roundToLong
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -174,6 +178,8 @@ private fun App(startRoute: String? = null) {
         composable("stretch") { RoutineRunner("Desk stretch", Routines.DESK, G.Sleep, null) { nav.popBackStack() } }
         composable("mobility") { RoutineRunner("Daily mobility", Routines.MOBILITY, G.Sleep, null) { nav.popBackStack() } }
         composable("workout") { WorkoutScreen { bump(); nav.popBackStack() } }
+        composable("sleep") { SleepScreen(refresh) { nav.navigate(it) } }
+        composable("ready") { ReadyScreen(refresh) { nav.navigate(it) } }
     }
 }
 
@@ -219,6 +225,11 @@ private fun HomeScreen(refresh: Int, go: (String) -> Unit, bump: () -> Unit) {
             Pill("Morning HRV", filled = true, color = G.Sleep, sub = "60 s · sit still") { go("hrv") }
         }
 
+        item {
+            val r = remember(refresh) { Recovery.readiness() }
+            Tile("READINESS", r?.score?.toString() ?: "–", if (r != null) "/ 100" else "", readyColor(r?.score),
+                r?.let { "${it.label} · ${it.parts.minByOrNull { p -> p.score }?.name?.lowercase() ?: ""} lowest" } ?: "Needs sleep or morning HRV") { go("ready") }
+        }
         item { Tile("STEPS", fmt(s.steps), "%.2f KM".format(s.km), G.Steps, "${s.floors} floors") { go("hours") } }
         item { Tile("HEART RATE", s.hr, "BPM", G.Heart, if (s.hrTime.isNotEmpty()) "at ${s.hrTime}" else "Waiting for reading") { go("heart") } }
         item {
@@ -227,7 +238,7 @@ private fun HomeScreen(refresh: Int, go: (String) -> Unit, bump: () -> Unit) {
                 when { t != null && b != null -> "7-day avg %.0f ms".format(b); t == null -> "Measure each morning"; else -> "Building baseline" }) { go("hrv") }
         }
         item { Tile("WATER", "%.2f".format(s.water / 1000.0), "/ %.1f L".format(Prefs.goalWater / 1000.0), G.Water) { go("water") } }
-        item { Tile("SLEEP", s.sleep, if (s.sleep.first().isDigit()) "HRS" else "", G.Sleep, s.sleepDetail) { go("checkin") } }
+        item { Tile("SLEEP", s.sleep, if (s.sleep.first().isDigit()) "HRS" else "", G.Sleep, s.sleepDetail) { go("sleep") } }
         item { Tile("BODY", "%.1f".format(Prefs.weightKg), "KG", G.Body, Store.kvGet("body_last_summary") ?: "Weekly measurement") { go("body") } }
         item {
             val c = when { !s.configured || s.error.isNotEmpty() -> G.Warn; s.pending > 0 -> G.Accent; else -> G.Good }
@@ -480,6 +491,63 @@ private fun HrvScreen(bump: () -> Unit) {
     }
 }
 
+// ================= v1.7: Sleep + Readiness =================
+private fun readyColor(score: Int?) = when { score == null -> G.Muted; score >= 75 -> G.Good; score >= 50 -> G.Accent; else -> G.Warn }
+private fun hmin(h: Double): String { val m = (h * 60).roundToLong(); return "${m / 60}h %02dm".format(m % 60) }
+
+@Composable
+private fun SleepScreen(refresh: Int, go: (String) -> Unit) {
+    val today = Rec.today()
+    val n = remember(refresh) { Recovery.night(today) }
+    val week = remember(refresh) { Recovery.nights(7) }
+    val hr = remember(refresh, n) { n?.let { Recovery.hrBetween(it.start, it.end) } }
+    val rhr = remember(refresh) { Rec.dailyValue(today, "resting_hr")?.roundToLong()?.toInt() ?: Recovery.restingHr(today) }
+    val rb = remember(refresh) { Recovery.rhrBaseline(today) }
+    val open = Store.kvGet("sleep_start")?.toLongOrNull()
+    val hrs = week.mapNotNull { it.second?.hours }
+    GScreen {
+        when {
+            open != null -> item { Hero("SLEEP", "Asleep", "SINCE ${hm(open)}", G.Sleep) }
+            n != null -> item { Hero("LAST NIGHT", hmin(n.hours), "${hm(n.start)} – ${hm(n.end)}", G.Sleep,
+                if (Store.kvGet("sleep_user:$today") != null) "Set in check-in" else "Detected by watch") }
+            else -> item { Hero("LAST NIGHT", "–", "NOT RECORDED", G.Sleep, "Wear the watch to bed, or set it in check-in") }
+        }
+        if (hr != null) item {
+            // 5-min averages through the night
+            val pts = hr.toList().chunked(5).map { c -> c.filter { it > 0 }.let { f -> if (f.isEmpty()) 0 else f.average().roundToLong().toInt() } }
+            MiniLine(pts, G.Heart, hm(n!!.start), hm(n.end))
+        }
+        item { Tile("RESTING HR", rhr?.toString() ?: "–", "BPM", G.Heart,
+            when { rhr != null && rb != null -> "7-day avg %.0f · %+.0f".format(rb, rhr - rb); rhr != null -> "Lowest 15 min while asleep"; else -> "After a night with the watch on" }) }
+        item { Caption("LAST 7 NIGHTS", G.Muted) }
+        item { DayBars(week.map { it.second?.hours ?: 0.0 }, week.map { it.first.dayOfWeek.name.take(1) }, G.Sleep, goal = 7.5) }
+        if (hrs.isNotEmpty()) item { Caption("Average ${hmin(hrs.average())} · goal 7h 30m") }
+        item { Pill("Edit last night", sub = "Morning check-in") { go("checkin") } }
+    }
+}
+
+@Composable
+private fun ReadyScreen(refresh: Int, go: (String) -> Unit) {
+    val r = remember(refresh) { Recovery.readiness() }
+    GScreen {
+        if (r == null) {
+            item { Hero("READINESS", "–", "NOT ENOUGH DATA", G.Muted) }
+            item { Caption("Needs last night's sleep or a morning HRV reading. Resting HR and HRV need 3 days to build a baseline.") }
+            item { Pill("Morning HRV", filled = true, color = G.Sleep, sub = "60 s · sit still") { go("hrv") } }
+        } else {
+            val c = readyColor(r.score)
+            item { Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { Rings(listOf(r.score / 100f to c), size = 96.dp, stroke = 11.dp) } }
+            item { Hero("READINESS", "${r.score}", r.label.uppercase(), c, when {
+                r.score >= 75 -> "Good day for a full session"
+                r.score >= 50 -> "Train as planned"
+                else -> "Lighter weights, Zone 2, or mobility" }) }
+            r.parts.forEach { p -> item { Tile(p.name.uppercase(), "${p.score}", "/ 100", readyColor(p.score), "${p.detail} · weight ${p.weight}%") } }
+            if (r.parts.size < 4) item { Caption("More parts appear as data builds: HRV and resting HR need 3 days.") }
+        }
+        item { Pill("Sleep details", color = G.Sleep) { go("sleep") } }
+    }
+}
+
 // ---------------- Morning check-in ----------------
 @Composable
 private fun CheckinScreen(onDone: () -> Unit) {
@@ -503,7 +571,7 @@ private fun CheckinScreen(onDone: () -> Unit) {
         item { RoundButtons(listOf("1", "2", "3", "4", "5"), selected = rested, color = G.Sleep) { rested = it } }
         item {
             Pill(if (rested < 0) "Pick 1–5" else "Save", filled = rested >= 0, color = G.Sleep) {
-                if (rested >= 0 && wake > bed) { Rec.checkin(today, bed, wake, rested + 1); onDone() }
+                if (rested >= 0 && wake > bed) { Rec.checkin(today, bed, wake, rested + 1); Recovery.recordNight(bed, wake, userSet = true); onDone() }
             }
         }
     }

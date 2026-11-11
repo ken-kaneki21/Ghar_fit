@@ -294,3 +294,59 @@ fun ZoneBar(seconds: List<Long>) {
         }
     }
 }
+
+/** Few labelled bars (e.g. last 7 nights). Dashed goal line if given. */
+@Composable
+fun DayBars(values: List<Double>, labels: List<String>, color: Color, goal: Double? = null) {
+    val dim = lerp(Color.Black, color, 0.35f)
+    Column(Modifier.fillMaxWidth(0.86f)) {
+        Canvas(Modifier.fillMaxWidth().height(60.dp)) {
+            val n = values.size.coerceAtLeast(1)
+            val slot = size.width / n
+            val bw = slot * 0.58f
+            val max = maxOf(values.maxOrNull() ?: 0.0, goal ?: 0.0, 1.0)
+            drawLine(G.Surface, Offset(0f, size.height), Offset(size.width, size.height), strokeWidth = 2f)
+            if (goal != null) {
+                val y = (size.height - goal / max * (size.height - 2f)).toFloat()
+                drawLine(G.Muted, Offset(0f, y), Offset(size.width, y), strokeWidth = 1.5f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f)))
+            }
+            values.forEachIndexed { i, v ->
+                if (v <= 0) return@forEachIndexed
+                val h = (v / max * (size.height - 2f)).toFloat().coerceAtLeast(3f)
+                val x = i * slot + (slot - bw) / 2f
+                drawRoundRect(if (goal == null || v >= goal) color else dim, Offset(x, size.height - h), Size(bw, h), CornerRadius(bw / 2f, bw / 2f))
+            }
+        }
+        Row(Modifier.fillMaxWidth()) {
+            labels.forEach { Text(it, style = GType.Caption, color = G.Muted, textAlign = TextAlign.Center, modifier = Modifier.weight(1f)) }
+        }
+    }
+}
+
+/** Simple line for a short series (0 = gap), e.g. heart rate through the night. */
+@Composable
+fun MiniLine(points: List<Int>, color: Color, startLabel: String = "", endLabel: String = "") {
+    val vals = points.filter { it > 0 }
+    if (vals.size < 2) { Caption("Not enough heart-rate readings"); return }
+    val lo = vals.min() - 3; val hi = vals.max() + 3
+    Column(Modifier.fillMaxWidth(0.86f)) {
+        Canvas(Modifier.fillMaxWidth().height(56.dp)) {
+            val dx = size.width / (points.size - 1).coerceAtLeast(1)
+            fun y(v: Int) = size.height - (v - lo).toFloat() / (hi - lo) * size.height
+            var prev: Offset? = null
+            points.forEachIndexed { i, v ->
+                if (v <= 0) { prev = null; return@forEachIndexed }
+                val p = Offset(i * dx, y(v))
+                prev?.let { drawLine(color, it, p, strokeWidth = 3f, cap = StrokeCap.Round) }
+                prev = p
+            }
+            val mi = points.indexOf(vals.min())
+            drawCircle(color, 5f, Offset(mi * dx, y(vals.min())))
+        }
+        Row(Modifier.fillMaxWidth()) {
+            Text(startLabel, style = GType.Caption, color = G.Muted, modifier = Modifier.weight(1f))
+            Text("low ${vals.min()}", style = GType.Caption, color = color)
+            Text(endLabel, style = GType.Caption, color = G.Muted, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+        }
+    }
+}

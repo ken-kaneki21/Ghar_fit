@@ -88,6 +88,7 @@ object Sleep {
                 val mins = ((ms - start) / 60_000L).toDouble()
                 val prev = Rec.dailyValue(wakeDate, "sleep_min") ?: 0.0
                 Rec.daily(wakeDate, "sleep_min", maxOf(prev, mins))
+                Recovery.recordNight(start, ms)
             }
         }
     }
@@ -95,5 +96,6 @@ object Sleep {
     /** Called every 30 min by the heartbeat: keeps the open session saved so a night is never lost. */
     fun checkpoint() {
         Store.kvGet("sleep_start")?.toLongOrNull()?.let { Rec.sleep(it, null) }
+        Recovery.update()
     }
 }

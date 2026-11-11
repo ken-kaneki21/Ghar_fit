@@ -105,6 +105,7 @@ object Hrv {
             val k = am.keys().asSequence().toList().sorted().takeLast(30)
             Store.kvSet("hrv_am", JSONObject().apply { k.forEach { put(it, am.getDouble(it)) } }.toString())
         }
+        Recovery.update()
     }
 
     fun today(): Double? = runCatching { JSONObject(Store.kvGet("hrv_hist") ?: "{}").optDouble(Rec.today().toString()) }

@@ -9,7 +9,7 @@ import kotlin.math.roundToLong
 
 /** Builds server rows and puts them in the outbox. `person` is (re)filled at upload time. */
 object Rec {
-    const val APP_VERSION = "1.6.0"
+    const val APP_VERSION = "1.7.0"
     val zone: ZoneId get() = ZoneId.systemDefault()
 
     fun iso(ms: Long): String = Instant.ofEpochMilli(ms).toString()
@@ -32,7 +32,7 @@ object Rec {
         sample(type, bucket, value)
     }
 
-    private val DAILY_FIELDS = listOf("steps", "floors", "distance_m", "sleep_min", "exercise_min", "active_hours", "water_ml")
+    private val DAILY_FIELDS = listOf("steps", "floors", "distance_m", "sleep_min", "exercise_min", "active_hours", "water_ml", "resting_hr", "readiness")
 
     /** Counters that only grow during a day. Health Services may restart them from 0 when tracking is re-registered. */
     private val MONOTONIC = setOf("steps", "kcal_total", "floors", "distance_m")
