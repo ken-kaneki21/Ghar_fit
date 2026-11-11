@@ -1,0 +1,13 @@
+=== v1.4 HRV: add the Samsung Health Sensor SDK (same .aar the probe used) ===
+
+1) In Android Studio: right-click  app  → New → Directory → libs   (skip if it exists)
+2) Copy  C:\dev\samsung-sdk\1.4.1\samsung-health-sensor-api-1.4.1.aar  →  C:\dev\ghar-watch\app\libs\
+3) app/build.gradle.kts → inside dependencies { ... } ADD:
+
+    implementation(files("libs/samsung-health-sensor-api-1.4.1.aar"))
+
+4) proguard-rules.pro already keeps com.samsung.android.service.health.tracking.** (from v1.1) – nothing to add.
+5) File → Sync Project with Gradle Files → Run ▶ (release).
+
+The .aar is Samsung's licensed file: .gitignore now excludes app/libs/*.aar – never commit it.
+If HRV says "Sensor service unavailable": adb shell am force-stop com.samsung.android.service.health, then retry.

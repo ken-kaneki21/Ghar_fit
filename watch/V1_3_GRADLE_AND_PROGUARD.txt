@@ -1,0 +1,15 @@
+=== 1) app/build.gradle.kts → inside dependencies { ... } ADD these 3 lines ===
+
+    implementation("androidx.wear:wear-ongoing:1.0.0")                 // workout icon on the watch face
+    implementation("androidx.wear.tiles:tiles:1.4.1")                  // rings tile
+    implementation("androidx.wear.protolayout:protolayout:1.2.1")      // tile layout
+
+=== 2) app/proguard-rules.pro → ADD at the bottom ===
+
+# v1.3: tiles + workouts
+-keep class androidx.wear.protolayout.proto.** { *; }
+-keep class androidx.wear.tiles.proto.** { *; }
+-keep class dev.ghar.watch.tile.** { *; }
+-keep class dev.ghar.watch.workout.** { *; }
+
+=== 3) File → Sync Project with Gradle Files, then Run ▶ (release) ===

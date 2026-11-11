@@ -1,0 +1,19 @@
+# Android / Gradle
+.gradle/
+build/
+/local.properties
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Secrets and proprietary files — never commit
+tools/ghar.local.json
+*.aar
+04_test_upload.ps1
+*.keystore
+*.jks
+
+# Probe output
+probe-run*/
