@@ -1,0 +1,18 @@
+# Android / Gradle
+.gradle/
+build/
+local.properties
+.idea/
+.kotlin/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+# Secrets and proprietary files: never commit
+**/ghar.local.json
+*.aar
+**/04_test_upload.ps1
+*.keystore
+*.jks
+.env
+probe-run*/
